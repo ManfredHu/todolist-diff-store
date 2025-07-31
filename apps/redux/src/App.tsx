@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import type { AppDispatch } from "./store";
 import { deleteTodo, selectCurrentUser, selectCurrentUserTodos, toggleTodo } from "./todoSlice";
 import { addTodoWithUser } from "./todoThunks";
-import { login, logout } from "./userSlice";
+import { fetchUser, login, logout } from "./userSlice";
 
 function App() {
   const [input, setInput] = useState("");
@@ -25,6 +25,11 @@ function App() {
       dispatch(login(usernameInput.trim()));
     }
   };
+
+  useEffect(() => {
+    dispatch(fetchUser()); // 自动异步设置 user.name 和 loggedIn
+  }, []);
+  
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
       <h1>Todo List</h1>
@@ -37,7 +42,6 @@ function App() {
         <button onClick={handleLogin}>Login</button>
         <button onClick={() => dispatch(logout())}>Logout</button>
       </div>
-
       <p>User: {user.loggedIn ? user.name : "Not logged in"}</p>
 
       <input
