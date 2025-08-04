@@ -8,7 +8,7 @@ interface Todo {
   owner: string;
 }
 
-interface TodoState {
+interface TodoStore {
   list: Todo[];
   nextId: number;
   addTodo: (text: string, owner: string) => void;
@@ -18,7 +18,7 @@ interface TodoState {
   addTodoWithUser: (text: string) => void;
 }
 
-export const useTodoStore = create<TodoState>((set, get) => ({
+export const useTodoStore = create<TodoStore>((set, get) => ({
   list: [],
   nextId: 1,
 
@@ -36,19 +36,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     });
   },
 
-  toggleTodo: (id) => {
-    set((state) => ({
-      list: state.list.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      ),
-    }));
-  },
+  toggleTodo: (id) => set((state) => ({
+    list: state.list.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ),
+  })),
 
-  deleteTodo: (id) => {
-    set((state) => ({
-      list: state.list.filter((todo) => todo.id !== id),
-    }));
-  },
+  deleteTodo: (id) => set((state) => ({
+    list: state.list.filter((todo) => todo.id !== id),
+  })),
 
   selectCurrentUserTodos: () => {
     const { list } = get();

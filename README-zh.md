@@ -68,7 +68,74 @@ const [
 ```
 
 ## Zustand
+挺好用的库，核心就store概念，没其他乱七八糟的。函数式写法也非常棒，对比reduck不需要区分属性和方法，对比redux不需要引入reducer，actions等概念
 
+```TS
+import { create } from "zustand";
+import { useUserStore } from "./userStore";
+
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+  owner: string;
+}
+
+interface TodoStore {
+  list: Todo[];
+  nextId: number;
+  addTodo: (text: string, owner: string) => void;
+  toggleTodo: (id: number) => void;
+  deleteTodo: (id: number) => void;
+  selectCurrentUserTodos: () => Todo[];
+  addTodoWithUser: (text: string) => void;
+}
+
+export const useTodoStore = create<TodoStore>((set, get) => ({
+  list: [],
+  nextId: 1,
+
+  addTodo: (text, owner) => {
+    const { list, nextId } = get();
+    const newTodo: Todo = {
+      id: nextId,
+      text,
+      completed: false,
+      owner,
+    };
+    set({
+      list: [...list, newTodo],
+      nextId: nextId + 1,
+    });
+  },
+
+  toggleTodo: (id) => set((state) => ({
+    list: state.list.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ),
+  })),
+
+  deleteTodo: (id) => set((state) => ({
+    list: state.list.filter((todo) => todo.id !== id),
+  })),
+
+  selectCurrentUserTodos: () => {
+    const { list } = get();
+    const { name } = useUserStore.getState(); // 获取当前登录用户名
+    return list.filter((todo) => todo.owner === name);
+  },
+
+  addTodoWithUser: (text) => {
+    const { name } = useUserStore.getState();
+    if (!name) return;
+    get().addTodo(text, name);
+  },
+}));
+```
+
+1. 通过 `create<T>` 声明整个store的类型
+2. state和actions混合不用区分，如果属性非常简单也可以一行代码搞定。甚至使用各种中间件简化get/set写法
+3. 通过 `set, get`可以获取到本身store的设置/获取方法，也可以引用其他store类似 `const { name } = useUserStore.getState();` 拿到其他store的属性
 
 ## Jotai
 
