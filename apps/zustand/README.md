@@ -1,3 +1,3 @@
 # Zustand
 
-node >= 20 version
+node >= 22 version

@@ -1,10 +1,25 @@
+[English Version](./README.md)
+
 # TODOList Store不同方案对比
 
 项目计划
-pnpm create vite zustand-todo --template react-ts1. 使用todolist store, users store两个完成todolist，需要包含todolist的增删查改
-2. 需要可以对todolist store进行修改，比如读取users store进行数据过滤后输出
-3. 需要考虑todolist store 和 users store的异步接口获取，通过异步接口调用获取对应数据
+1. 使用todolist store, users store两个完成todolist，需要包含todolist的增删查改
+1. 需要可以对todolist store进行修改，比如读取users store进行数据过滤后输出
+2. 需要考虑todolist store 和 users store的异步接口获取，通过异步接口调用获取对应数据
 
+
+| 对比维度       | Redux                                   | Reduck                                        | Zustand                                    | Jotai                                     |
+| -------------- | ------------------------------------- | --------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| 学习认知成本   | 高 — 需理解 actions, reducers, middleware，概念较多 | 中 — 简化了 Redux 概念，支持跨 store 引入，略有自定义API | 低 — 只需理解 store 和函数式写法，无额外复杂概念 | 中 — Atom 概念需理解，区分读写，异步写法相对复杂  |
+| 易用性         | 中 — 结构清晰，但写法繁琐                | 中 — API 简单，跨 store方便，但项目不活跃          | 高 — 轻量简单，函数式，无模板代码             | 高 — 原子化状态管理，细粒度灵活，但写法稍复杂      |
+| 是否开源       | 是，https://github.com/reduxjs/redux    | 是，https://github.com/web-infra-dev/reduck    | 是，https://github.com/pmndrs/zustand     | 是，https://github.com/pmndrs/jotai       |
+| 当前Star数     | ⭐ 61.3k+ (2025)                       | ⭐ 81 (项目不活跃)                            | ⭐ 53.9k+                                   | ⭐ 20.3k+                                   |
+| 生态稳定性     | 高 — 业界标准，广泛采用，社区活跃         | 低 — 维护停滞，使用场景有限                      | 中 — 生态快速增长，广泛小项目采用               | 中 — 新兴生态，原子状态管理思想兴起     |
+| 扩展性         | 高 — 可结合中间件、redux-saga、redux-thunk等 | 中 — 支持effects，但生态有限                      | 高 — 支持中间件和中间层，灵活且无侵入             | 高 — 可组合 atom，支持异步和复杂状态衍生           |
+| 性能           | 中 — 基于 Redux，批量更新及优化需手动     | 中 — 基于 Redux 思想，性能类似                    | 高 — 轻量，局部更新，极简且性能优秀                | 高 — 原子化读写，最小更新范围，性能表现优秀          |
+
+
+---
 
 ## Redux
 传统的开源方案，跟着React一期发展很多年了
@@ -139,4 +154,73 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
 
 ## Jotai
 
-## Valtio
+```TS
+import { atom } from 'jotai'
+import { userNameAtom } from './users';
+
+export interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+  owner: string;
+}
+
+const todoListAtom = atom<Todo[]>([])
+const nextIdAtom = atom(1)
+
+// 增删改方法
+export const addTodoAtom = atom(null, (get, set, { text, owner }: { text: string; owner: string }) => {
+  const id = get(nextIdAtom)
+  const newTodo: Todo = { id, text, completed: false, owner }
+  set(todoListAtom, [...get(todoListAtom), newTodo])
+  set(nextIdAtom, id + 1)
+})
+
+export const toggleTodoAtom = atom(null, (get, set, id: number) => {
+  const list = get(todoListAtom)
+  set(
+    todoListAtom,
+    list.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    )
+  )
+})
+
+export const deleteTodoAtom = atom(null, (get, set, id: number) => {
+  const list = get(todoListAtom)
+  set(todoListAtom, list.filter((todo) => todo.id !== id))
+})
+
+export const currentUserTodosAtom = atom((get) => {
+  const todos = get(todoListAtom);
+  const currentUser = get(userNameAtom);
+  return todos.filter((todo) => todo.owner === currentUser);
+});
+
+// 用当前用户添加 todo
+export const addTodoWithUserAtom = atom(null, (get, set, text: string) => {
+  const user = get(userNameAtom)
+  set(addTodoAtom, { text, owner: user })
+})
+
+// 导出基础状态和方法
+export {
+  todoListAtom,
+  nextIdAtom
+}
+```
+
+主要看 `const currentUser = get(userNameAtom);` 获取外部store数据的写法，可以看到写法需要具体到原子属性的读写。
+
+而 `App.tsx` 的使用表示其实理解负担还是挺重的，需要理解每个属性是读取还是写入
+
+```TS
+const [todos] = useAtom(currentUserTodosAtom);         // 派生 Atom，只读。返回当前用户的 todos
+const [, deleteTodo] = useAtom(deleteTodoAtom);        // 写入-only Atom，提供删除 Todo 的函数
+const [, logout] = useAtom(logoutAtom);                // 写入-only Atom，提供注销函数
+const [loggedIn] = useAtom(loggedInAtom);              // 普通 Atom，登录状态
+const [name] = useAtom(userNameAtom);                  // 普通 Atom，用户名
+const [, login] = useAtom(loginAtom);                  // 写入-only Atom，执行登录操作
+const [, addTodoWithUser] = useAtom(addTodoWithUserAtom); // 写入-only Atom，添加当前用户的 todo
+const [, toggleTodo] = useAtom(toggleTodoAtom);        // 写入-only Atom，切换 todo 状态
+```
