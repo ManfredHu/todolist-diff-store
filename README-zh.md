@@ -8,11 +8,10 @@
 2. 需要考虑todolist store 和 users store的异步接口获取，通过异步接口调用获取对应数据
 
 
-| 对比维度       | Redux                                   | Reduck                                        | Zustand                                    | Jotai                                     |
+| 对比维度       | [Redux](https://github.com/reduxjs/redux)                                   | [Reduck](https://github.com/web-infra-dev/reduck)                                        | [Zustand](https://github.com/pmndrs/zustand)                                    | [Jotai](https://github.com/pmndrs/)                                     |
 | -------------- | ------------------------------------- | --------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | 学习认知成本   | 高 — 需理解 actions, reducers, middleware，概念较多 | 中 — 简化了 Redux 概念，支持跨 store 引入，略有自定义API | 低 — 只需理解 store 和函数式写法，无额外复杂概念 | 中 — Atom 概念需理解，区分读写，异步写法相对复杂  |
 | 易用性         | 中 — 结构清晰，但写法繁琐                | 中 — API 简单，跨 store方便，但项目不活跃          | 高 — 轻量简单，函数式，无模板代码             | 高 — 原子化状态管理，细粒度灵活，但写法稍复杂      |
-| 是否开源       | 是，https://github.com/reduxjs/redux    | 是，https://github.com/web-infra-dev/reduck    | 是，https://github.com/pmndrs/zustand     | 是，https://github.com/pmndrs/jotai       |
 | 当前Star数     | ⭐ 61.3k+ (2025)                       | ⭐ 81 (项目不活跃)                            | ⭐ 53.9k+                                   | ⭐ 20.3k+                                   |
 | 生态稳定性     | 高 — 业界标准，广泛采用，社区活跃         | 低 — 维护停滞，使用场景有限                      | 中 — 生态快速增长，广泛小项目采用               | 中 — 新兴生态，原子状态管理思想兴起     |
 | 扩展性         | 高 — 可结合中间件、redux-saga、redux-thunk等 | 中 — 支持effects，但生态有限                      | 高 — 支持中间件和中间层，灵活且无侵入             | 高 — 可组合 atom，支持异步和复杂状态衍生           |
