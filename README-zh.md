@@ -1,7 +1,7 @@
 # TODOList Store不同方案对比
 
 项目计划
-1. 使用todolist store, users store两个完成todolist，需要包含todolist的增删查改
+pnpm create vite zustand-todo --template react-ts1. 使用todolist store, users store两个完成todolist，需要包含todolist的增删查改
 2. 需要可以对todolist store进行修改，比如读取users store进行数据过滤后输出
 3. 需要考虑todolist store 和 users store的异步接口获取，通过异步接口调用获取对应数据
 
@@ -27,8 +27,45 @@ Redux的缺点
 ## Reduck
 字节web-infra的方案: [https://github.com/web-infra-dev/reduck](https://github.com/web-infra-dev/reduck)，看样子是不再维护了。😑
 
+写法很简单，可以看到可以跨store引入其他store数据. `use(usersModel)`
 
+```TS
+export const todosModel = model<TodoState>("todos").define(
+  (_context, { use }) => {
+    return {
+      state: initialState,
+      actions: {
+        addTodo: (state, { text, owner }: { text: string; owner: string }) => {
+          // ……
+        },
+      },
+      computed: {
+        selectCurrentUserTodos(state) {
+          const [{ name }] = use(usersModel);
+          return state.list.filter((todo) => todo.owner === name);
+        },
+      },
+      effects: {
+        addTodoWithUser(text: string) {
+          const [{ loggedIn, name }] = use(usersModel);
+          const [{}, { addTodo }] = use(todosModel);
+          if (loggedIn) {
+            addTodo({ text, owner: name });
+          }
+        },
+      },
+    };
+  }
+);
+```
 
+使用也非常简单，使用useModel引入后即可解析state和action/effects使用
+```TS
+const [
+    { selectCurrentUserTodos: todos },
+    { addTodoWithUser, toggleTodo, deleteTodo },
+  ] = useModel(todosModel);
+```
 
 ## Zustand
 
