@@ -8,7 +8,7 @@
 2. 需要考虑todolist store 和 users store的异步接口获取，通过异步接口调用获取对应数据
 
 
-| 对比维度       | [Redux](https://github.com/reduxjs/redux)                                   | [Reduck](https://github.com/web-infra-dev/reduck)                                        | [Zustand](https://github.com/pmndrs/zustand)                                    | [Jotai](https://github.com/pmndrs/)                                     |
+| 对比维度       | [Redux](https://github.com/reduxjs/redux)                                   | [Reduck](https://github.com/web-infra-dev/reduck)                                        | [Zustand](https://github.com/pmndrs/zustand)                                    | [Jotai](https://github.com/pmndrs/jotai)                                     |
 | -------------- | ------------------------------------- | --------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | 学习认知成本   | 高 — 需理解 actions, reducers, middleware，概念较多 | 中 — 简化了 Redux 概念，支持跨 store 引入，略有自定义API | 低 — 只需理解 store 和函数式写法，无额外复杂概念 | 中 — Atom 概念需理解，区分读写，异步写法相对复杂  |
 | 易用性         | 中 — 结构清晰，但写法繁琐                | 中 — API 简单，跨 store方便，但项目不活跃          | 高 — 轻量简单，函数式，无模板代码             | 高 — 原子化状态管理，细粒度灵活，但写法稍复杂      |
